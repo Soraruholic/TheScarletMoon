@@ -23,15 +23,17 @@ Item ENDS
 extern Player:Item
 extern Ball:Item
 extern Bricks:Item
+extern brickNum:dword
+extern existBrickNum:dword
 extern Bullets:Item
+extern InitBrickCoordX:dword
+extern InitBrickCoordY:dword
 
 
 printf PROTO C :ptr DWORD, :VARARG
 
 .data
 
-coord sbyte "鼠标点击 %d,%d",0ah,0
-poscord sbyte "人物位置 %d,%d",0ah,0
 
 .code
 ;判断点击的坐标或所求点坐标是否在规定矩形框内，是返回1，不是则返回0。
@@ -58,9 +60,6 @@ iface_mouseEvent proc C x:dword,y:dword,button:dword,event:dword
 	mov ecx,event
 	cmp ecx,BUTTON_DOWN
 	jne not_click
-
-	invoke printf,offset coord,x,y
-	invoke printf,offset poscord,playerPosX,playerPosY
 
 	.if currentWin == 0
 		invoke is_inside_the_rect,x,y,800,1000,100,200
