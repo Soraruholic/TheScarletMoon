@@ -17,7 +17,7 @@ printf PROTO C :ptr sbyte, :VARARG
 
 .data
 
-winTitle byte "幻想绮月谭",0
+winTitle byte "幻想绮月谭-v1.0",0
 
 
 .code
