@@ -33,7 +33,8 @@ extern InitBrickCoordY:dword
 printf PROTO C :ptr DWORD, :VARARG
 
 .data
-
+coord sbyte "%d | %d", 0ah, 0
+coordd sbyte "1",0ah,0
 
 .code
 ;判断点击的坐标或所求点坐标是否在规定矩形框内，是返回1，不是则返回0。
@@ -76,8 +77,60 @@ not_click:
 	ret
 iface_mouseEvent endp
 
-; 击球函数
-; hitBallJudge
+; 击球后，球的改变
+ballHit proc C
+	push edx
+	push esi
+
+	mov hitBallAcc, 10
+
+	mov edx, 0
+	mov esi, Ball.vX
+	;invoke printf,offset coord, Ball.vX, Ball.vY
+	sub edx, esi
+	mov Ball.vX, edx
+
+	mov Ball.vY, 35
+	;invoke printf,offset coord, Ball.vX, Ball.vY
+
+	pop esi
+	pop edx
+	ret
+ballHit endp
+
+; 判断player是否成功击球，碰撞边界为方形
+hitBallJudge proc C 
+	push eax
+	push ebx
+	push edi
+	
+	mov hitRange, 50
+	mov eax, playerPosX
+	sub eax, hitRange
+	mov ebx, eax
+	mov eax, playerPosX
+	add eax, 50
+	add eax, hitRange
+	mov edi, eax
+
+	.if ebx < 40
+		mov ebx, 40
+	.endif
+	sub ebx, 40
+
+	;invoke printf,offset coord, ballPosX, ballPosY
+	;invoke printf,offset coord, ecx, playerPosX
+	;invoke printf,offset coord, edi, ebx
+	;invoke printf,offset coord, esi, edx
+	.if (ballPosX <= edi && ballPosX >= ebx && ballPosY <= 560 && ballPosY >= 470)
+		invoke ballHit
+	.endif
+
+	pop edi
+	pop ebx
+	pop eax
+	ret
+hitBallJudge endp
 
 ; 键盘事件回调函数
 iface_keyboardEvent proc C key:dword, event:dword
@@ -91,7 +144,7 @@ iface_keyboardEvent proc C key:dword, event:dword
 			mov eax,1
 			mov Player.typ,eax
 			invoke Flush
-			;invoke hitBallJudge
+			invoke hitBallJudge
 			mov eax,0
 			mov Player.typ,eax
 		.endif

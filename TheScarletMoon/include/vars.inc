@@ -8,3 +8,6 @@ extern ballPosY:dword
 
 extern Life:dword
 extern Score:dword
+
+extern hitRange:dword
+extern hitBallAcc:dword

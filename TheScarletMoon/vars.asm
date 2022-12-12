@@ -7,6 +7,11 @@ option casemap:none
 currentWin DWORD 0
 public currentWin
 
+hitRange DWORD 0
+public hitRange
+
+hitBallAcc DWORD 0
+public hitBallAcc
 
 playerPosX DWORD ?
 public playerPosX
@@ -50,7 +55,7 @@ public Bullets
 BulletNum DWORD 0
 public BulletNum
 
-InitBrickCoordX DWORD 000,40,80,00,80,00,40,80,120,00,120,00,40,80,120,320,360,400,360,360,360,320,360,400,600,640,680,720,760,600,680,760,680,680,680,0
+InitBrickCoordX DWORD 40,80,120,40,120,40,80,120,160,40,160,40,80,120,160,320,360,400,360,360,360,320,360,400,560,600,640,680,720,560,640,720,640,640,640,0
 InitBrickCoordY DWORD 50,50,50,90,90,130,130,130,130,170,170,210,210,210,210,50,50,50,90,130,170,210,210,210,50,50,50,50,50,90,90,90,130,170,210,0
 public InitBrickCoordX
 public InitBrickCoordY
