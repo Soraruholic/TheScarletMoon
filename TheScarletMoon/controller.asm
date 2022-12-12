@@ -103,12 +103,12 @@ iface_keyboardEvent proc C key:dword, event:dword
 			.endif
 		.endif
 		.if key == VK_D
-			.if playerPosX < 690
+			.if playerPosX < 740
 				mov eax,playerPosX
 				add eax,10
 				mov playerPosX,eax
-			.elseif playerPosX >= 690
-				mov eax,700
+			.elseif playerPosX >= 740
+				mov eax,750
 				mov playerPosX,eax
 			.endif
 		.endif
