@@ -32,7 +32,11 @@ Item ENDS
 extern Player:Item
 extern Ball:Item
 extern Bricks:Item
+extern brickNum:dword
+extern existBrickNum:dword
 extern Bullets:Item
+extern InitBrickCoordX:dword
+extern InitBrickCoordY:dword
 
 .code
 
