@@ -146,9 +146,9 @@ Flush proc C
 		invoke putImageScale,offset imgback,0,0,1000,600
 
 		.if Player.typ == 0
-			invoke putImageScale,offset imgplayer1,playerPosX,playerPosY,100,100
+			invoke putImageScale,offset imgplayer1,playerPosX,playerPosY,50,50
 		.elseif Player.typ == 1
-			invoke putImageScale,offset imgplayer2,playerPosX,playerPosY,100,100
+			invoke putImageScale,offset imgplayer2,playerPosX,playerPosY,50,50
 		.endif
 
 		invoke setTextSize,20
