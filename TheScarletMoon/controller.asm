@@ -10,14 +10,33 @@ include include\model.inc
 include include\acllib.inc
 include include\view.inc
 
+Item STRUCT
+	exist DWORD ?
+	typ DWORD ?
+	posX DWORD ?
+	posY DWORD ?
+	W DWORD ?
+	H DWORD ?
+	vX DWORD ?
+	vY DWORD ?
+Item ENDS
+extern Player:Item
+extern Ball:Item
+extern Bricks:Item
+extern brickNum:dword
+extern existBrickNum:dword
+extern Bullets:Item
+extern InitBrickCoordX:dword
+extern InitBrickCoordY:dword
+
+
 printf PROTO C :ptr DWORD, :VARARG
 
 .data
 
-coord sbyte "Êó±êµã»÷ %d,%d",0ah,0
 
 .code
-;ÅÐ¶Ïµã»÷µÄ×ø±êÊÇ·ñÔÚ¾ØÐÎ¿òÄÚ£¬ÊÇ·µ»Ø1£¬²»ÊÇÔò·µ»Ø0¡£
+;åˆ¤æ–­ç‚¹å‡»çš„åæ ‡æˆ–æ‰€æ±‚ç‚¹åæ ‡æ˜¯å¦åœ¨è§„å®šçŸ©å½¢æ¡†å†…ï¼Œæ˜¯è¿”å›ž1ï¼Œä¸æ˜¯åˆ™è¿”å›ž0ã€‚
 is_inside_the_rect proc C x:dword,y:dword,left:dword,right:dword,up:dword,bottom:dword
 	mov eax,x
 	mov ebx,y
@@ -35,14 +54,12 @@ is_inside_the_rect proc C x:dword,y:dword,left:dword,right:dword,up:dword,bottom
 	ret
 is_inside_the_rect endp
 
-; Êó±êÊÂ¼þ»Øµ÷º¯Êý
+; é¼ æ ‡äº‹ä»¶å›žè°ƒå‡½æ•°
 iface_mouseEvent proc C x:dword,y:dword,button:dword,event:dword
 	pushad
 	mov ecx,event
 	cmp ecx,BUTTON_DOWN
 	jne not_click
-
-	invoke printf,offset coord,x,y
 
 	.if currentWin == 0
 		invoke is_inside_the_rect,x,y,800,1000,100,200
@@ -59,8 +76,7 @@ not_click:
 	ret
 iface_mouseEvent endp
 
-
-; ¼üÅÌÊÂ¼þ»Øµ÷º¯Êý
+; é”®ç›˜äº‹ä»¶å›žè°ƒå‡½æ•°
 iface_keyboardEvent proc C key:dword, event:dword
 	pushad
 	mov ecx,event
@@ -68,6 +84,33 @@ iface_keyboardEvent proc C key:dword, event:dword
 	jne not_press
 
 	.if currentWin == 1
+		.if key == VK_SPACE
+			mov eax,1
+			mov Player.typ,eax
+			invoke Flush
+			mov eax,0
+			mov Player.typ,eax
+		.endif
+		.if key == VK_A
+			.if playerPosX > 10
+				mov eax,playerPosX
+				sub eax,10
+				mov playerPosX,eax
+			.elseif playerPosX <= 10
+				mov eax,0
+				mov playerPosX,eax
+			.endif
+		.endif
+		.if key == VK_D
+			.if playerPosX < 740
+				mov eax,playerPosX
+				add eax,10
+				mov playerPosX,eax
+			.elseif playerPosX >= 740
+				mov eax,750
+				mov playerPosX,eax
+			.endif
+		.endif
 	.endif
 
 not_press:

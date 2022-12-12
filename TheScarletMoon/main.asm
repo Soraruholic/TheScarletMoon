@@ -1,4 +1,4 @@
-.386 
+.386
 .model flat,stdcall
 option casemap:none
 
@@ -17,14 +17,44 @@ printf PROTO C :ptr sbyte, :VARARG
 
 .data
 
-winTitle byte "»ÃÏëç²ÔÂÌ·-v1.0",0
+winTitle byte "å¹»æƒ³ç»®æœˆè°­",0
+
+Item STRUCT
+	exist DWORD ?
+	typ DWORD ?
+	posX DWORD ?
+	posY DWORD ?
+	W DWORD ?
+	H DWORD ?
+	vX DWORD ?
+	vY DWORD ?
+Item ENDS
+extern Player:Item
+extern Ball:Item
+extern Bricks:Item
+extern brickNum:dword
+extern existBrickNum:dword
+extern Bullets:Item
+extern InitBrickCoordX:dword
+extern InitBrickCoordY:dword
+
 .code
 
 main proc
-
-
 	invoke init_first
 	invoke initWindow,offset winTitle,425,50,1000,600
+
+	mov eax,0
+	mov currentWin,eax
+	mov eax,0
+	mov Score,eax
+	mov eax,3
+	mov Life,eax
+	mov eax,350
+	mov playerPosX,eax
+	mov eax,550
+	mov playerPosY,eax
+
 	invoke Flush
 	
 	invoke registerMouseEvent,iface_mouseEvent
