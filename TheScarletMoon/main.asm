@@ -21,6 +21,8 @@ winTitle byte "»ÃÏëç²ÔÂÌ·-v1.0",0
 .code
 
 main proc
+
+
 	invoke init_first
 	invoke initWindow,offset winTitle,425,50,1000,600
 	invoke Flush
