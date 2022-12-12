@@ -28,6 +28,10 @@ main proc
 	invoke initWindow,offset winTitle,425,50,1000,600
 	invoke Flush
 	
+
+
+
+
 	invoke registerMouseEvent,iface_mouseEvent
 	invoke registerKeyboardEvent, iface_keyboardEvent
 	invoke init_second
