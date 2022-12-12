@@ -46,9 +46,9 @@ main proc
 	mov Score,eax
 	mov eax,3
 	mov Life,eax
-	mov eax,300
+	mov eax,350
 	mov playerPosX,eax
-	mov eax,500
+	mov eax,550
 	mov playerPosY,eax
 
 	invoke Flush
