@@ -10,14 +10,33 @@ include include\model.inc
 include include\acllib.inc
 include include\view.inc
 
+Item STRUCT
+	exist DWORD ?
+	typ DWORD ?
+	posX DWORD ?
+	posY DWORD ?
+	W DWORD ?
+	H DWORD ?
+	vX DWORD ?
+	vY DWORD ?
+Item ENDS
+extern Player:Item
+extern Ball:Item
+extern Bricks:Item
+extern brickNum:dword
+extern existBrickNum:dword
+extern Bullets:Item
+extern InitBrickCoordX:dword
+extern InitBrickCoordY:dword
+
+
 printf PROTO C :ptr DWORD, :VARARG
 
 .data
 
-coord sbyte "鼠标点击 %d,%d",0ah,0
 
 .code
-;判断点击的坐标是否在矩形框内，是返回1，不是则返回0。
+;判断点击的坐标或所求点坐标是否在规定矩形框内，是返回1，不是则返回0。
 is_inside_the_rect proc C x:dword,y:dword,left:dword,right:dword,up:dword,bottom:dword
 	mov eax,x
 	mov ebx,y
@@ -42,8 +61,6 @@ iface_mouseEvent proc C x:dword,y:dword,button:dword,event:dword
 	cmp ecx,BUTTON_DOWN
 	jne not_click
 
-	invoke printf,offset coord,x,y
-
 	.if currentWin == 0
 		invoke is_inside_the_rect,x,y,800,1000,100,200
 		.if eax == 1
@@ -59,6 +76,8 @@ not_click:
 	ret
 iface_mouseEvent endp
 
+; 击球函数
+; hitBallJudge
 
 ; 键盘事件回调函数
 iface_keyboardEvent proc C key:dword, event:dword
@@ -68,6 +87,34 @@ iface_keyboardEvent proc C key:dword, event:dword
 	jne not_press
 
 	.if currentWin == 1
+		.if key == VK_SPACE
+			mov eax,1
+			mov Player.typ,eax
+			invoke Flush
+			;invoke hitBallJudge
+			mov eax,0
+			mov Player.typ,eax
+		.endif
+		.if key == VK_A
+			.if playerPosX > 10
+				mov eax,playerPosX
+				sub eax,25
+				mov playerPosX,eax
+			.elseif playerPosX <= 10
+				mov eax,0
+				mov playerPosX,eax
+			.endif
+		.endif
+		.if key == VK_D
+			.if playerPosX < 740
+				mov eax,playerPosX
+				add eax,25
+				mov playerPosX,eax
+			.elseif playerPosX >= 740
+				mov eax,750
+				mov playerPosX,eax
+			.endif
+		.endif
 	.endif
 
 not_press:
