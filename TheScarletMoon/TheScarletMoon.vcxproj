@@ -96,7 +96,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\学习相关\汇编语言与接口技术\code\TheScarletMoon\lib;D:\masm32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\6\TheScarletMoon\lib;D:\masm32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>main</EntryPointSymbol>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -104,7 +104,7 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <MASM>
-      <IncludePaths>D:\masm32\include;D:\学习相关\汇编语言与接口技术\code\TheScarletMoon\TheScarletMoon\include;%(IncludePaths)</IncludePaths>
+      <IncludePaths>D:\masm32\include;D:\6\TheScarletMoon\TheScarletMoon\include;%(IncludePaths)</IncludePaths>
     </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
