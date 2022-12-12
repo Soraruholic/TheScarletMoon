@@ -32,10 +32,14 @@ extern Player:Item
 extern Ball:Item
 extern Bricks:Item
 extern brickNum:dword
+extern existBrickNum:dword
 extern Bullets:Item
+extern InitBrickCoordX:dword
+extern InitBrickCoordY:dword
 
 .data
-coord sbyte "%d",0ah,0
+coord sbyte "1",0ah,0
+coordd sbyte "2",0ah,0
 
 srcgame byte "..\resource\icon\game.jpg",0
 imggame ACL_Image <>
@@ -151,6 +155,10 @@ Flush proc C
 			invoke putImageScale,offset imgplayer2,playerPosX,playerPosY,50,50
 		.endif
 
+		invoke paintBricks
+
+		invoke putImageScale,offset imgball,ballPosX,ballPosY,40,40
+
 		invoke setTextSize,20
 		invoke setTextColor,00cc9988h
 		invoke setTextBkColor,colorWHITE
@@ -171,14 +179,10 @@ Flush proc C
 		invoke setTextBkColor,colorWHITE
 		invoke paintText,830,170,offset strlife
 
-		invoke endPaint
-		jmp bricks
 
-	bricks:
-		invoke beginPaint
-		invoke paintBricks
 		invoke endPaint
 		jmp finish
+
 
 
 	finish:
