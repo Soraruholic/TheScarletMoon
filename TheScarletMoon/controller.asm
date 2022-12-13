@@ -30,6 +30,7 @@ extern InitBrickCoordX:dword
 extern InitBrickCoordY:dword
 extern hitRange:dword
 extern hitBallAcc:dword
+extern bgmChange:dword
 
 printf PROTO C :ptr DWORD, :VARARG
 
@@ -72,6 +73,9 @@ iface_mouseEvent proc C x:dword,y:dword,button:dword,event:dword
 			mov currentWin,2
 			invoke Flush
 		.endif
+		invoke is_inside_the_rect,x,y,800,1000,400,500
+		.if eax == 1
+		.endif
 	.elseif currentWin == 1
 		invoke is_inside_the_rect,x,y,800,1000,500,600
 		.if eax == 1
@@ -89,6 +93,12 @@ iface_mouseEvent proc C x:dword,y:dword,button:dword,event:dword
 			invoke Flush
 		.endif
 	.elseif currentWin == 3
+		invoke is_inside_the_rect,x,y,800,1000,500,600
+		.if eax == 1
+			mov currentWin,0
+			invoke Flush
+		.endif
+	.elseif currentWin == 4
 		invoke is_inside_the_rect,x,y,800,1000,500,600
 		.if eax == 1
 			mov currentWin,0
