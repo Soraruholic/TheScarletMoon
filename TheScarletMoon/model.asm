@@ -33,6 +33,7 @@ extern timeCount:dword
 extern BulletNum:dword
 extern Boss:Item
 extern BulletSpeedX:dword
+extern bgmChange:dword
 
 
 printf PROTO C :ptr DWORD, :VARARG
@@ -41,6 +42,15 @@ calDistance PROTO C :dword, :dword, :dword, :dword
 .data
 coord sbyte "%d %d %d",0ah,0
 coordd sbyte "%d",0ah,0
+
+musicopen byte "..\resource\music\th08_01.mp3",0
+musicopenP dd 0
+musicgame byte "..\resource\music\th11_02.mp3",0
+musicgameP dd 0
+musicsuccess byte "..\resource\music\th11_16.mp3",0
+musicsuccessP dd 0
+musicfail byte "..\resource\music\th10_18.mp3",0
+musicfailP dd 0
 
 .code
 initBall proc C
@@ -465,6 +475,27 @@ bossAttack proc C
 	ret
 bossAttack endp
 
+bgmChanger proc C
+	.if bgmChange == 1
+		invoke loadSound,addr musicopen,addr musicopenP
+		invoke playSound,musicopenP,SND_LOOP
+		mov bgmChange,0
+	.elseif bgmChange == 2
+		invoke loadSound,addr musicgame,addr musicgameP
+		invoke playSound,musicgameP,SND_LOOP
+		mov bgmChange,0
+	.elseif bgmChange == 3
+		invoke loadSound,addr musicsuccess,addr musicsuccessP
+		invoke playSound,musicsuccessP,SND_LOOP
+		mov bgmChange,0
+	.elseif bgmChange == 4
+		invoke loadSound,addr musicfail,addr musicfailP
+		invoke playSound,musicfailP,SND_LOOP
+		mov bgmChange,0
+	.endif
+	ret
+bgmChanger endp
+
 timeCounter proc C
 	add timeCount,1
 	.if timeCount >= 200
@@ -475,7 +506,6 @@ timeCounter endp
 
 timer proc C id:dword
 .if currentWin == 1
-	invoke printf,offset coordd,currentWin
 	invoke timeCounter
 	invoke moveBall
 	.if Ball.exist == 1
