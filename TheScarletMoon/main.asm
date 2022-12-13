@@ -17,7 +17,7 @@ printf PROTO C :ptr sbyte, :VARARG
 
 .data
 
-winTitle byte "幻想绮月谭",0
+winTitle byte "The Saga of the Fantasy Moon",0
 
 Item STRUCT
 	exist DWORD ?
@@ -37,6 +37,7 @@ extern existBrickNum:dword
 extern Bullets:Item
 extern InitBrickCoordX:dword
 extern InitBrickCoordY:dword
+extern bgmChange:dword
 
 .code
 
@@ -44,16 +45,14 @@ main proc
 	invoke init_first
 	invoke initWindow,offset winTitle,425,50,1000,600
 
-	mov eax,0
-	mov currentWin,eax
-	mov eax,0
-	mov Score,eax
-	mov eax,3
-	mov Life,eax
-	mov eax,350
-	mov playerPosX,eax
-	mov eax,550
-	mov playerPosY,eax
+	mov currentWin,0
+	mov Score,0
+	mov Life,3
+	mov playerPosX,350
+	mov playerPosY,550
+
+	mov bgmChange,1
+	invoke bgmPlay
 
 	invoke Flush
 	
