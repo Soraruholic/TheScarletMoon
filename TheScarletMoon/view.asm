@@ -33,9 +33,11 @@ extern Ball:Item
 extern Bricks:Item
 extern brickNum:dword
 extern existBrickNum:dword
+extern BulletNum:dword
 extern Bullets:Item
 extern InitBrickCoordX:dword
 extern InitBrickCoordY:dword
+extern Boss:Item
 
 .data
 coord sbyte "1",0ah,0
@@ -46,6 +48,15 @@ imggame ACL_Image <>
 
 srcback byte "..\resource\icon\back.jpg",0
 imgback ACL_Image <>
+
+srcintroduce byte "..\resource\icon\introduce.jpg",0
+imgintroduce ACL_Image <>
+
+srcsuccess byte "..\resource\icon\success.jpg",0
+imgsuccess ACL_Image <>
+
+srcfail byte "..\resource\icon\fail.jpg",0
+imgfail ACL_Image <>
 
 srcplayer1 byte "..\resource\icon\player1.jpg",0
 imgplayer1 ACL_Image <>
@@ -59,10 +70,17 @@ imgball ACL_Image <>
 srcbrick byte "..\resource\icon\brick.jpg",0
 imgbrick ACL_Image <>
 
+srcboss byte "..\resource\icon\bosss.jpg",0
+imgboss ACL_Image <>
 
-titlescore byte "得点：",0
+srcbullet1 byte "..\resource\icon\bullet1.jpg",0
+imgbullet1 ACL_Image <>
+srcbullet2 byte "..\resource\icon\bullet2.jpg",0
+imgbullet2 ACL_Image <>
+
+titlescore byte "Score :",0
 strscore byte 10 dup(0)
-titlelife byte "残机：",0
+titlelife byte "Residual :",0
 strlife byte 10 dup(0)
 
 .code
@@ -82,10 +100,6 @@ FlushLife proc C num: dword
 	pop ebx
 	ret
 FlushLife endp
-
-DrawItem proc C x:dword,y:dword,w:dword,h:dword
-	ret
-DrawItem endp
 	
 drawBrick proc C x: dword, y: dword, h: dword, w: dword, t: dword 	;只能在启动了paintBricks时调用此函数
 	push eax
@@ -120,6 +134,32 @@ paintBricks proc C
 		ret
 paintBricks endp
 
+paintBoss proc C
+	.if Boss.exist == 1
+		invoke putImageScale, offset imgboss, Boss.posX, Boss.posY, Boss.W, Boss.H
+	.endif
+	ret
+paintBoss endp
+
+paintBullets proc C
+	push ebx					
+	push edi
+	mov edi,0
+	mov eax, BulletNum; 将ebx设置为brickNum*32
+	mov ebx, 32;
+	mul ebx;
+	mov ebx, eax
+	.while edi<ebx
+		;invoke printf,offset debug
+		.if Bullets[edi].exist == 1
+			invoke putImageScale, offset imgbullet1, Bullets[edi].posX, Bullets[edi].posY, Bullets[edi].W, Bullets[edi].H
+		.endif
+		add edi, 32
+	.endw
+	pop edi
+	pop ebx
+	ret
+paintBullets endp
 
 Flush proc C
 		mov ebx,currentWin
@@ -127,6 +167,10 @@ Flush proc C
 		jz open
 		cmp ebx,1
 		jz mainwindow
+		cmp ebx,2
+		jz introduce
+		cmp ebx,3
+		jz success
 	open:
 		invoke loadImage,offset srcgame,offset imggame
 		invoke beginPaint
@@ -143,7 +187,9 @@ Flush proc C
 		invoke loadImage,offset srcplayer1,offset imgplayer1
 		invoke loadImage,offset srcplayer2,offset imgplayer2
 		invoke loadImage,offset srcball,offset imgball
-		invoke loadImage, offset srcbrick, offset imgbrick
+		invoke loadImage,offset srcbrick, offset imgbrick
+		invoke loadImage,offset srcboss, offset imgboss
+		invoke loadImage,offset srcbullet1, offset imgbullet1
 
 		invoke beginPaint
 
@@ -155,8 +201,15 @@ Flush proc C
 			invoke putImageScale,offset imgplayer2,playerPosX,playerPosY,50,50
 		.endif
 
-		invoke paintBricks
+		.if existBrickNum > 0
+			invoke paintBricks
+		.endif
 
+		.if (existBrickNum == 0 && Boss.exist == 1)
+			invoke paintBoss
+			invoke paintBullets
+		.endif
+		
 		invoke putImageScale,offset imgball,ballPosX,ballPosY,40,40
 
 		invoke setTextSize,20
@@ -183,8 +236,20 @@ Flush proc C
 		invoke endPaint
 		jmp finish
 
+	introduce:
+		invoke loadImage,offset srcintroduce,offset imgintroduce
+		invoke beginPaint
+		invoke putImageScale,offset imgintroduce,0,0,1000,600
+		invoke endPaint
+		jmp finish
 
-
+	success:
+		invoke loadImage,offset srcsuccess,offset imgsuccess
+		invoke beginPaint
+		invoke putImageScale,offset imgsuccess,0,0,1000,600
+		invoke endPaint
+		jmp finish
+		
 	finish:
 		ret
 	Flush endp
