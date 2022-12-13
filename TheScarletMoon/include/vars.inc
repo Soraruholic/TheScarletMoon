@@ -14,3 +14,5 @@ extern t1:dword
 extern t2:dword
 extern t3:dword
 extern t4:dword
+
+extern bgmChange:dword
