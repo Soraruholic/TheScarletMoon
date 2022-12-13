@@ -82,4 +82,6 @@ public t3
 t4 DWORD 0
 public t4
 
+bgmChange DWORD 0
+public bgmChange
 end
