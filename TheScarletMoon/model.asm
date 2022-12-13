@@ -46,7 +46,7 @@ calDistance PROTO C :dword, :dword, :dword, :dword
 coord sbyte "%d %d %d",0ah,0
 coordd sbyte "%d",0ah,0
 
-musicopen byte "..\resource\music\th08_01.mp3",0
+musicopen byte "..\resource\music\th08_01cut.mp3",0
 musicopenP dd 0
 musicgame byte "..\resource\music\th11_02.mp3",0
 musicgameP dd 0
@@ -54,6 +54,20 @@ musicsuccess byte "..\resource\music\th11_16.mp3",0
 musicsuccessP dd 0
 musicfail byte "..\resource\music\th10_18.mp3",0
 musicfailP dd 0
+musicfailPlayer1 byte "..\resource\music\fail1.mp3",0
+musicfailPlayer1P dd 0
+musicplayerAttack byte "..\resource\music\playerAttack.mp3",0
+musicplayerAttackP dd 0
+musicplayerHarmed byte "..\resource\music\playerHarmed.mp3",0
+musicplayerHarmedP dd 0
+musicplayerHarmed2 byte "..\resource\music\playerHarmed2.mp3",0
+musicplayerHarmed2P dd 0
+musicplayerStart byte "..\resource\music\playerStart.mp3",0
+musicplayerStartP dd 0
+musicplayerGiveup byte "..\resource\music\playerGiveup.mp3",0
+musicplayerGiveupP dd 0
+musicplayerSuccess byte "..\resource\music\playerSuccess.mp3",0
+musicplayerSuccessP dd 0
 
 .code
 initBall proc C
@@ -76,6 +90,71 @@ initBoss proc C
 	mov BulletNum, 0
 	ret
 initBoss endp
+
+bgmStop proc C
+	.if bgmChange == 1
+		invoke stopSound,musicopenP
+	.elseif bgmChange == 2
+		invoke stopSound,musicgameP
+	.elseif bgmChange == 3
+		invoke stopSound,musicsuccessP
+	.elseif bgmChange == 4
+		invoke stopSound,musicfailP
+	.elseif bgmChange == 5
+		invoke stopSound,musicfailPlayer1P
+	.elseif bgmChange == 6
+		invoke stopSound,musicplayerAttackP
+	.elseif bgmChange == 7
+		invoke stopSound,musicplayerHarmed2P
+	.elseif bgmChange == 8
+		invoke stopSound,musicplayerHarmedP
+	.elseif bgmChange == 9
+		invoke stopSound,musicplayerStartP
+	.elseif bgmChange == 10
+		invoke stopSound,musicplayerGiveupP
+	.elseif bgmChange == 11
+		invoke stopSound,musicplayerSuccessP
+	.endif
+	ret
+bgmStop endp
+
+bgmPlay proc C
+	.if bgmChange == 1
+		invoke loadSound,addr musicopen,addr musicopenP
+		invoke playSound,musicopenP,SND_LOOP
+	.elseif bgmChange == 2
+		invoke loadSound,addr musicgame,addr musicgameP
+		invoke playSound,musicgameP,SND_LOOP
+	.elseif bgmChange == 3
+		invoke loadSound,addr musicsuccess,addr musicsuccessP
+		invoke playSound,musicsuccessP,SND_LOOP
+	.elseif bgmChange == 4
+		invoke loadSound,addr musicfail,addr musicfailP
+		invoke playSound,musicfailP,SND_LOOP
+	.elseif bgmChange == 5
+		invoke loadSound,addr musicfailPlayer1,addr musicfailPlayer1P
+		invoke playSound,musicfailPlayer1P,0
+	.elseif bgmChange == 6
+		invoke loadSound,addr musicplayerAttack,addr musicplayerAttackP
+		invoke playSound,musicplayerAttackP,0
+	.elseif bgmChange == 7
+		invoke loadSound,addr musicplayerHarmed2,addr musicplayerHarmed2P
+		invoke playSound,musicplayerHarmed2P,0
+	.elseif bgmChange == 8
+		invoke loadSound,addr musicplayerHarmed,addr musicplayerHarmedP
+		invoke playSound,musicplayerHarmedP,0
+	.elseif bgmChange == 9
+		invoke loadSound,addr musicplayerStart,addr musicplayerStartP
+		invoke playSound,musicplayerStartP,0
+	.elseif bgmChange == 10
+		invoke loadSound,addr musicplayerGiveup,addr musicplayerGiveupP
+		invoke playSound,musicplayerGiveupP,0
+	.elseif bgmChange == 11
+		invoke loadSound,addr musicplayerSuccess,addr musicplayerSuccessP
+		invoke playSound,musicplayerSuccessP,0
+	.endif
+	ret
+bgmPlay endp
 
 HitBrick proc C
 	pushad
@@ -162,6 +241,11 @@ HitBoss proc C
 			add Score,20
 			.if BossLife <= 10
 				mov Boss.exist,0
+				invoke bgmStop
+				mov bgmChange, 11
+				invoke bgmPlay
+				mov bgmChange, 3
+				invoke bgmPlay
 				mov currentWin,3
 				mov Score,0
 				mov Life,3
@@ -252,11 +336,19 @@ LoopItem:
 				.if (Bullets[edi].posX >= eax && Bullets[edi].posX <= ebx && Bullets[edi].posY >= ecx && Bullets[edi].posY <= esi)
 					mov hurtable,4
 					.if Life > 0
+						mov bgmChange, 7
+						invoke bgmPlay
+						mov bgmChange, 2
 						sub Life,1
 					.else
 						mov Life,0
 					.endif 
 					.if Life == 0
+						invoke bgmStop
+						mov bgmChange, 5
+						invoke bgmPlay
+						mov bgmChange, 4
+						invoke bgmPlay
 						mov currentWin,4
 						mov Score,0
 						mov Life,3
@@ -287,11 +379,19 @@ BallHitPlayer:
 				invoke printf,offset coordd, 56
 				mov hurtable,4
 				.if Life > 0
+					mov bgmChange, 8
+					invoke bgmPlay
+					mov bgmChange, 2
 					sub Life,1
 				.else
 					mov Life,0
 				.endif 
 				.if Life == 0
+					invoke bgmStop
+					mov bgmChange, 5
+					invoke bgmPlay
+					mov bgmChange, 4
+					invoke bgmPlay
 					mov currentWin,4
 					mov Score,0
 					mov Life,10
@@ -623,27 +723,6 @@ bossAttack proc C
 	.endif
 	ret
 bossAttack endp
-
-bgmChanger proc C
-	.if bgmChange == 1
-		invoke loadSound,addr musicopen,addr musicopenP
-		invoke playSound,musicopenP,SND_LOOP
-		mov bgmChange,0
-	.elseif bgmChange == 2
-		invoke loadSound,addr musicgame,addr musicgameP
-		invoke playSound,musicgameP,SND_LOOP
-		mov bgmChange,0
-	.elseif bgmChange == 3
-		invoke loadSound,addr musicsuccess,addr musicsuccessP
-		invoke playSound,musicsuccessP,SND_LOOP
-		mov bgmChange,0
-	.elseif bgmChange == 4
-		invoke loadSound,addr musicfail,addr musicfailP
-		invoke playSound,musicfailP,SND_LOOP
-		mov bgmChange,0
-	.endif
-	ret
-bgmChanger endp
 
 unhurtable proc C
 	.if hurtable > 0

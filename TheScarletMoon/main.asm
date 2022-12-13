@@ -51,8 +51,8 @@ main proc
 	mov playerPosX,350
 	mov playerPosY,550
 
-	mov bgmChange,2
-	invoke bgmChanger
+	mov bgmChange,1
+	invoke bgmPlay
 
 	invoke Flush
 	

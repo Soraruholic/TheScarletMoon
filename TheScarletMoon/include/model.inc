@@ -1,2 +1,3 @@
 InitGame PROTO C
-bgmChanger PROTO C
+bgmPlay PROTO C
+bgmStop PROTO C

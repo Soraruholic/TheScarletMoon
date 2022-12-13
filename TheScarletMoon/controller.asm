@@ -67,6 +67,11 @@ iface_mouseEvent proc C x:dword,y:dword,button:dword,event:dword
 		invoke is_inside_the_rect,x,y,800,1000,100,200
 		.if eax == 1
 			mov currentWin,1
+			invoke bgmStop
+			mov bgmChange, 9
+			invoke bgmPlay
+			mov bgmChange, 2
+			invoke bgmPlay
 			invoke InitGame
 		.endif
 		invoke is_inside_the_rect,x,y,800,1000,250,350
@@ -81,6 +86,11 @@ iface_mouseEvent proc C x:dword,y:dword,button:dword,event:dword
 	.elseif currentWin == 1
 		invoke is_inside_the_rect,x,y,800,1000,500,600
 		.if eax == 1
+			invoke bgmStop
+			mov bgmChange, 10
+			invoke bgmPlay
+			mov bgmChange, 1
+			invoke bgmPlay
 			mov currentWin,0
 			mov Score,0
 			mov Life,30
@@ -91,18 +101,27 @@ iface_mouseEvent proc C x:dword,y:dword,button:dword,event:dword
 	.elseif currentWin == 2
 		invoke is_inside_the_rect,x,y,800,1000,500,600
 		.if eax == 1
+			invoke bgmStop
+			mov bgmChange, 1
+			invoke bgmPlay
 			mov currentWin,0
 			invoke Flush
 		.endif
 	.elseif currentWin == 3
 		invoke is_inside_the_rect,x,y,800,1000,500,600
 		.if eax == 1
+			invoke bgmStop
+			mov bgmChange, 1
+			invoke bgmPlay
 			mov currentWin,0
 			invoke Flush
 		.endif
 	.elseif currentWin == 4
 		invoke is_inside_the_rect,x,y,800,1000,500,600
 		.if eax == 1
+			invoke bgmStop
+			mov bgmChange, 1
+			invoke bgmPlay
 			mov currentWin,0
 			invoke Flush
 		.endif
@@ -153,6 +172,9 @@ hitBallJudge proc C
 	sub ebx, 40
 
 	.if (ballPosX <= edi && ballPosX >= ebx && ballPosY <= 560 && ballPosY >= 420)
+		mov bgmChange, 6
+		invoke bgmPlay
+		mov bgmChange, 2
 		invoke ballHit
 	.endif
 
