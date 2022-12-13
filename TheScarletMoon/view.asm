@@ -38,6 +38,7 @@ extern Bullets:Item
 extern InitBrickCoordX:dword
 extern InitBrickCoordY:dword
 extern Boss:Item
+extern bgmChange:dword
 
 .data
 coord sbyte "1",0ah,0
@@ -171,6 +172,8 @@ Flush proc C
 		jz introduce
 		cmp ebx,3
 		jz success
+		cmp ebx,4
+		jz fail
 	open:
 		invoke loadImage,offset srcgame,offset imggame
 		invoke beginPaint
@@ -250,6 +253,13 @@ Flush proc C
 		invoke endPaint
 		jmp finish
 		
+	fail:
+		invoke loadImage,offset srcfail,offset imgfail
+		invoke beginPaint
+		invoke putImageScale,offset imgfail,0,0,1000,600
+		invoke endPaint
+		jmp finish
+
 	finish:
 		ret
 	Flush endp
