@@ -31,7 +31,6 @@ extern InitBrickCoordY:dword
 extern hitRange:dword
 extern hitBallAcc:dword
 
-
 printf PROTO C :ptr DWORD, :VARARG
 
 .data

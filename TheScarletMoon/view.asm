@@ -33,9 +33,11 @@ extern Ball:Item
 extern Bricks:Item
 extern brickNum:dword
 extern existBrickNum:dword
+extern BulletNum:dword
 extern Bullets:Item
 extern InitBrickCoordX:dword
 extern InitBrickCoordY:dword
+extern Boss:Item
 
 .data
 coord sbyte "1",0ah,0
@@ -59,10 +61,15 @@ imgball ACL_Image <>
 srcbrick byte "..\resource\icon\brick.jpg",0
 imgbrick ACL_Image <>
 
+srcboss byte "..\resource\icon\bosss.jpg",0
+imgboss ACL_Image <>
 
-titlescore byte "得点：",0
+srcbullet byte "..\resource\icon\brick.jpg",0
+imgbullet ACL_Image <>
+
+titlescore byte "Score :",0
 strscore byte 10 dup(0)
-titlelife byte "残机：",0
+titlelife byte "Residual :",0
 strlife byte 10 dup(0)
 
 .code
@@ -120,6 +127,32 @@ paintBricks proc C
 		ret
 paintBricks endp
 
+paintBoss proc C
+	.if Boss.exist == 1
+		invoke putImageScale, offset imgboss, Boss.posX, Boss.posY, Boss.W, Boss.H
+	.endif
+	ret
+paintBoss endp
+
+paintBullets proc C
+	push ebx					
+	push edi
+	mov edi,0
+	mov eax, BulletNum; 将ebx设置为brickNum*32
+	mov ebx, 32;
+	mul ebx;
+	mov ebx, eax
+	.while edi<ebx
+		;invoke printf,offset debug
+		.if Bullets[edi].exist == 1
+			invoke putImageScale, offset imgbullet, Bullets[edi].posX, Bullets[edi].posY, Bullets[edi].W, Bullets[edi].H
+		.endif
+		add edi, 32
+	.endw
+	pop edi
+	pop ebx
+	ret
+paintBullets endp
 
 Flush proc C
 		mov ebx,currentWin
@@ -143,7 +176,9 @@ Flush proc C
 		invoke loadImage,offset srcplayer1,offset imgplayer1
 		invoke loadImage,offset srcplayer2,offset imgplayer2
 		invoke loadImage,offset srcball,offset imgball
-		invoke loadImage, offset srcbrick, offset imgbrick
+		invoke loadImage,offset srcbrick, offset imgbrick
+		invoke loadImage,offset srcboss, offset imgboss
+		invoke loadImage,offset srcbullet, offset imgbullet
 
 		invoke beginPaint
 
@@ -155,9 +190,18 @@ Flush proc C
 			invoke putImageScale,offset imgplayer2,playerPosX,playerPosY,50,50
 		.endif
 
-		invoke paintBricks
+		.if existBrickNum > 0
+			invoke paintBricks
+		.endif
 
-		invoke putImageScale,offset imgball,ballPosX,ballPosY,40,40
+		.if (existBrickNum == 0 && Boss.exist == 1)
+			invoke paintBoss
+			invoke paintBullets
+		.endif
+		
+		.if Ball.exist == 1
+			invoke putImageScale,offset imgball,ballPosX,ballPosY,40,40
+		.endif
 
 		invoke setTextSize,20
 		invoke setTextColor,00cc9988h
