@@ -44,16 +44,11 @@ main proc
 	invoke init_first
 	invoke initWindow,offset winTitle,425,50,1000,600
 
-	mov eax,0
-	mov currentWin,eax
-	mov eax,0
-	mov Score,eax
-	mov eax,3
-	mov Life,eax
-	mov eax,350
-	mov playerPosX,eax
-	mov eax,550
-	mov playerPosY,eax
+	mov currentWin,0
+	mov Score,0
+	mov Life,3
+	mov playerPosX,350
+	mov playerPosY,550
 
 	invoke Flush
 	
