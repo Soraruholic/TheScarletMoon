@@ -50,7 +50,7 @@ initBoss proc C
 	mov Boss.posY, 150
 	mov Boss.W, 100
 	mov Boss.H, 100
-	;mov Ball.exist, 0
+	mov Ball.exist, 0
 	mov BulletNum, 0
 	ret
 initBoss endp
@@ -221,7 +221,6 @@ moveBullet proc C
 	mov ebx, eax
 	.while edi<ebx
 		.if Bullets[edi].exist == 1
-			invoke printf,offset coord, Bullets[edi].posX
 			mov eax, Bullets[edi].vX
 			add Bullets[edi].posX, eax
 			mov eax, Bullets[edi].vY
@@ -229,7 +228,6 @@ moveBullet proc C
 
 			.if (Bullets[edi].posX <= 0 || Bullets[edi].posX >= 700 || Bullets[edi].posY <= 0 || Bullets[edi].posY >= 600)
 				mov Bullets[edi].exist, 0
-				invoke printf,offset coord, Bullets[edi].posX
 			.endif
 		.endif 
 		add edi, 32
@@ -240,7 +238,7 @@ moveBullet endp
 
 loadDirectiveBullets proc C
 	push edi
-	mov BulletSpeedX, 30
+	mov BulletSpeedX, 50
 
 	mov eax, BulletNum
 	mov edi, 32;
@@ -252,7 +250,7 @@ loadDirectiveBullets proc C
 	mov Bullets[edi].H, 10
 	mov Bullets[edi].posX, 50
 	mov Bullets[edi].posY, 100
-	mov Bullets[edi].vY, 15
+	mov Bullets[edi].vY, 9
 	mov t1, edi
 	.if playerPosX > 50
 		mov eax, playerPosX
@@ -277,7 +275,7 @@ loadDirectiveBullets proc C
 	mov Bullets[edi].H, 10
 	mov Bullets[edi].posX, 250
 	mov Bullets[edi].posY, 100
-	mov Bullets[edi].vY, 5
+	mov Bullets[edi].vY, 9
 	mov t1, edi
 	.if playerPosX > 250
 		mov eax, playerPosX
@@ -303,7 +301,7 @@ loadDirectiveBullets proc C
 	mov Bullets[edi].H, 10
 	mov Bullets[edi].posX, 450
 	mov Bullets[edi].posY, 100
-	mov Bullets[edi].vY, 5
+	mov Bullets[edi].vY, 9
 	mov t1, edi
 	.if playerPosX > 450
 		mov eax, playerPosX
@@ -328,7 +326,7 @@ loadDirectiveBullets proc C
 	mov Bullets[edi].H, 10
 	mov Bullets[edi].posX, 650
 	mov Bullets[edi].posY, 100
-	mov Bullets[edi].vY, 5
+	mov Bullets[edi].vY, 9
 	mov t1, edi
 	.if playerPosX > 650
 		mov eax, playerPosX
@@ -357,14 +355,12 @@ loadDirectiveBullets endp
 bossAttack proc C 
 	.if (timeCount == 0)
 		invoke printf,offset coord, BulletNum
-		.if BulletNum < 800
+		.if BulletNum < 500
 			invoke loadDirectiveBullets
 			;invoke printf,offset coord, BulletNum
 		.endif
-	.elseif (timeCount >= 100 && timeCount <= 150)
-		.if BulletNum < 800
-			;invoke loadCutBullets
-		.endif
+	.elseif timeCount == 180
+		mov BulletNum, 0
 	.endif
 	ret
 bossAttack endp
@@ -380,8 +376,8 @@ timeCounter endp
 
 timer proc C id:dword
 	invoke timeCounter
-	invoke moveBall
-	.if Boss.exist == 0
+	.if Ball.exist == 1
+		invoke moveBall
 		invoke HitBrick
 	.endif
 	.if Boss.exist == 1
