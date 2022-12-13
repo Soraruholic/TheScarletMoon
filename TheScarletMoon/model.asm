@@ -158,7 +158,7 @@ HitBoss proc C
 		mov esi,250
 		.if ballPosX >= eax && ballPosX <= ebx && ballPosY >= ecx && ballPosY <= esi
 			sub BossLife,1
-			invoke printf,offset coordd,BossLife
+			;invoke printf,offset coordd,BossLife
 			add Score,20
 			.if BossLife <= 10
 				mov Boss.exist,0
@@ -222,55 +222,86 @@ clearBullet endp
 HitPlayer proc C
 	pushad
 	.if hurtable == 0
-	mov eax,existBulletNum
-	mov tmp_exist_bullet,eax
-	mov eax,BulletNum
-	mov ebx,32
-	mul ebx
-	mov edi,eax
+		.if (Boss.exist == 1)
+			mov eax,existBulletNum
+			mov tmp_exist_bullet,eax
+			mov eax,BulletNum
+			mov ebx,32
+			mul ebx
+			mov edi,eax
 LoopItem:
-	sub edi,32
-	.if Bullets[edi].exist == 1
-		sub tmp_exist_bullet,1
-		mov eax,playerPosX
-		.if eax < 10
-			mov eax, 0
-		.else
-			sub eax,10
+			sub edi,32
+			.if Bullets[edi].exist == 1
+				sub tmp_exist_bullet,1
+				mov eax,playerPosX
+				.if eax < 10
+					mov eax, 0
+				.else
+					sub eax,10
+				.endif
+				mov ebx,playerPosX
+				add ebx,40
+				mov ecx,playerPosY
+				.if ecx < 10
+					mov ecx, 0
+				.else
+					sub ecx,10
+				.endif
+				mov esi,playerPosY
+				add esi,40
+				.if (Bullets[edi].posX >= eax && Bullets[edi].posX <= ebx && Bullets[edi].posY >= ecx && Bullets[edi].posY <= esi)
+					mov hurtable,4
+					.if Life > 0
+						sub Life,1
+					.else
+						mov Life,0
+					.endif 
+					.if Life == 0
+						mov currentWin,4
+						mov Score,0
+						mov Life,3
+						mov playerPosX,350
+						mov playerPosY,550
+						invoke Flush
+					.endif
+					invoke clearBullet
+					mov existBulletNum,0
+					jmp BallHitPlayer
+				.endif
+			.endif	
+			cmp tmp_exist_bullet,0
+			jne LoopItem
+			jmp BallHitPlayer
 		.endif
-		mov ebx,playerPosX
-		add ebx,40
-		mov ecx,playerPosY
-		.if ecx < 10
-			mov ecx, 0
-		.else
-			sub ecx,10
-		.endif
-		mov esi,playerPosY
-		add esi,40
-		.if Bullets[edi].posX >= eax && Bullets[edi].posX <= ebx && Bullets[edi].posY >= ecx && Bullets[edi].posY <= esi
-			mov hurtable,4
-			.if Life > 0
-				sub Life,1
-			.else
-				mov Life,0
-			.endif 
-			.if Life == 0
-				mov currentWin,4
-				mov Score,0
-				mov Life,3
-				mov playerPosX,350
-				mov playerPosY,550
-				invoke Flush
+BallHitPlayer:
+		.if Ball.exist == 1
+			mov esi, playerPosX
+			.if playerPosX < 30
+				mov esi, 30
 			.endif
-			invoke clearBullet
-			mov existBulletNum,0
-			jmp Finished
+			sub esi, 30
+			mov ebx, playerPosX
+			add ebx, 80
+			.if (ballPosX >= esi && ballPosX <= ebx && ballPosY >= 520 && ballPosY <= 600)
+				mov hurtable,4
+				.if Life > 0
+					sub Life,1
+				.else
+					mov Life,0
+				.endif 
+				.if Life == 0
+					mov currentWin,4
+					mov Score,0
+					mov Life,3
+					mov playerPosX,350
+					mov playerPosY,550
+					invoke Flush
+				.endif
+				invoke initBall
+				;mov existBulletNum,0
+				jmp Finished
+			.endif
 		.endif
-	.endif
-	cmp tmp_exist_bullet,0
-	jne LoopItem
-	jmp Finished
 	.endif
 Finished:
 	popad
@@ -543,7 +574,7 @@ loadCutBullets endp
 
 bossAttack proc C 
 	.if (timeCount == 0 || timeCount == 50)
-		invoke printf,offset coord, BulletNum
+		;invoke printf,offset coord, BulletNum
 		.if BulletNum < 1000
 			invoke loadDirectiveBullets
 		.endif
@@ -600,13 +631,13 @@ timeCounter proc C
 timeCounter endp
 
 timer proc C id:dword
-	invoke printf,offset coordd,BulletNum
+	;invoke printf,offset coordd,BulletNum
 .if currentWin == 1
 	invoke timeCounter
 	invoke unhurtable
 	invoke moveBall
+	invoke HitPlayer
 	.if Boss.exist == 1
-		invoke HitPlayer
 		invoke HitBoss
 		invoke bossAttack
 		invoke moveBullet
