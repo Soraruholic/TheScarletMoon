@@ -17,7 +17,7 @@ printf PROTO C :ptr sbyte, :VARARG
 
 .data
 
-winTitle byte "幻想绮月谭",0
+winTitle byte "The Saga of the Fantasy Moon",0
 
 Item STRUCT
 	exist DWORD ?

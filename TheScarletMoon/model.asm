@@ -60,8 +60,8 @@ initBall proc C
 	mov Ball.exist,1
 	mov Ball.vX,30
 	mov Ball.vY,20
-	mov ballPosX,100
-	mov ballPosY,400
+	mov ballPosX,250
+	mov ballPosY,300
 	ret
 initBall endp
 
@@ -72,7 +72,7 @@ initBoss proc C
 	mov Boss.posY, 150
 	mov Boss.W, 100
 	mov Boss.H, 100
-	mov Ball.exist, 0
+	;mov Ball.exist, 0
 	mov BulletNum, 0
 	ret
 initBoss endp
@@ -274,6 +274,7 @@ LoopItem:
 			jmp BallHitPlayer
 		.endif
 BallHitPlayer:
+		;invoke printf,offset coordd, 12
 		.if Ball.exist == 1
 			mov esi, playerPosX
 			.if playerPosX < 30
@@ -283,6 +284,7 @@ BallHitPlayer:
 			mov ebx, playerPosX
 			add ebx, 80
 			.if (ballPosX >= esi && ballPosX <= ebx && ballPosY >= 520 && ballPosY <= 600)
+				invoke printf,offset coordd, 56
 				mov hurtable,4
 				.if Life > 0
 					sub Life,1
@@ -292,7 +294,7 @@ BallHitPlayer:
 				.if Life == 0
 					mov currentWin,4
 					mov Score,0
-					mov Life,3
+					mov Life,10
 					mov playerPosX,350
 					mov playerPosY,550
 					invoke Flush
@@ -426,7 +428,11 @@ loadDirectiveBullets proc C
 		sub eax, 50
 		div BulletSpeedX
 		mov edi, t1
-		mov Bullets[edi].vX, eax
+		.if (eax < 0 || eax > 100)
+			mov Bullets[edi].vX, eax
+		.else 
+			mov Bullets[edi].vX, 0
+		.endif 
 	.else
 		mov eax, 50
 		sub eax, playerPosX
@@ -435,7 +441,11 @@ loadDirectiveBullets proc C
 		mov eax, 0
 		sub eax, edi
 		mov edi, t1
-		mov Bullets[edi].vX, eax
+		.if (eax < 0 || eax > 100)
+			mov Bullets[edi].vX, eax
+		.else 
+			mov Bullets[edi].vX, 0
+		.endif 
 	.endif
 
 	add edi, 32
@@ -451,7 +461,11 @@ loadDirectiveBullets proc C
 		sub eax, 250
 		div BulletSpeedX
 		mov edi, t1
-		mov Bullets[edi].vX, eax
+		.if (eax < 0 || eax > 100)
+			mov Bullets[edi].vX, eax
+		.else 
+			mov Bullets[edi].vX, 0
+		.endif 
 	.else
 		mov eax, 250
 		sub eax, playerPosX
@@ -460,7 +474,11 @@ loadDirectiveBullets proc C
 		mov eax, 0
 		sub eax, edi
 		mov edi, t1
-		mov Bullets[edi].vX, eax
+		.if (eax < 0 || eax > 100)
+			mov Bullets[edi].vX, eax
+		.else 
+			mov Bullets[edi].vX, 0
+		.endif 
 	.endif
 
 
@@ -477,7 +495,11 @@ loadDirectiveBullets proc C
 		sub eax, 450
 		div BulletSpeedX
 		mov edi, t1		
-		mov Bullets[edi].vX, eax
+		.if (eax < 0 || eax > 100)
+			mov Bullets[edi].vX, eax
+		.else 
+			mov Bullets[edi].vX, 0
+		.endif 
 	.else
 		mov eax, 450
 		sub eax, playerPosX
@@ -486,7 +508,11 @@ loadDirectiveBullets proc C
 		mov eax, 0
 		sub eax, edi
 		mov edi, t1
-		mov Bullets[edi].vX, eax
+		.if (eax < 0 || eax > 100)
+			mov Bullets[edi].vX, eax
+		.else 
+			mov Bullets[edi].vX, 0
+		.endif 
 	.endif
 
 	add edi, 32
@@ -503,7 +529,11 @@ loadDirectiveBullets proc C
 		div BulletSpeedX
 		mov t1, eax
 		mov edi, t1
-		mov Bullets[edi].vX, eax
+		.if (eax < 0 || eax > 100)
+			mov Bullets[edi].vX, eax
+		.else 
+			mov Bullets[edi].vX, 0
+		.endif 
 	.else
 		mov eax, 650
 		sub eax, playerPosX
@@ -512,7 +542,11 @@ loadDirectiveBullets proc C
 		mov eax, 0
 		sub eax, edi
 		mov edi, t1
-		mov Bullets[edi].vX, eax
+		.if (eax < 0 || eax > 100)
+			mov Bullets[edi].vX, eax
+		.else 
+			mov Bullets[edi].vX, 0
+		.endif 
 	.endif
 
 	add BulletNum, 4
@@ -655,7 +689,7 @@ InitGame proc C
 IniPlayer:
 	mov Player.typ,0
 	mov hurtable,0
-	mov Life,3
+	mov Life,10
 
 	push 0
 	call crt_time

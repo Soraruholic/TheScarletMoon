@@ -16,6 +16,7 @@ printf proto C :dword,:vararg
 
 colorBLACK EQU 00000000h
 colorWHITE EQU 00ffffffh
+colorBACKGROUND EQU   00604977h
 colorEMPTY EQU 0ffffffffh
 
 Item STRUCT
@@ -82,10 +83,12 @@ imgbullet1 ACL_Image <>
 srcbullet2 byte "..\resource\icon\bullet2.jpg",0
 imgbullet2 ACL_Image <>
 
-titlescore byte "Score :",0
+titlescore byte "Current Score :",0
 strscore byte 10 dup(0)
-titlelife byte "Residual :",0
+titlelife byte "HP :",0
 strlife byte 10 dup(0)
+titlefinalscore byte "Final Score :", 0
+strfinalscore byte 20 dup(0)
 
 .code
 FlushScore proc C num: dword
@@ -93,6 +96,7 @@ FlushScore proc C num: dword
 	mov ebx,num
 	mov Score,ebx
 	invoke myitoa,ebx,offset strscore
+	invoke myitoa,ebx,offset strfinalscore
 	pop ebx
 	ret
 FlushScore endp
@@ -223,22 +227,22 @@ Flush proc C
 
 		invoke setTextSize,20
 		invoke setTextColor,00cc9988h
-		invoke setTextBkColor,colorWHITE
+		invoke setTextBkColor,colorBACKGROUND
 		invoke paintText,830,50,offset titlescore
 
 		invoke setTextSize,20
 		invoke setTextColor,00cc9988h
-		invoke setTextBkColor,colorWHITE
+		invoke setTextBkColor,colorBACKGROUND
 		invoke paintText,830,70,offset strscore
 
 		invoke setTextSize,20
-		invoke setTextColor,00cc9988h
-		invoke setTextBkColor,colorWHITE
+		invoke setTextColor,0032CD32h
+		invoke setTextBkColor,colorBACKGROUND
 		invoke paintText,830,150,offset titlelife
 
 		invoke setTextSize,20
-		invoke setTextColor,00cc9988h
-		invoke setTextBkColor,colorWHITE
+		invoke setTextColor,0032CD32h
+		invoke setTextBkColor,colorBACKGROUND
 		invoke paintText,830,170,offset strlife
 
 
@@ -256,6 +260,15 @@ Flush proc C
 		invoke loadImage,offset srcsuccess,offset imgsuccess
 		invoke beginPaint
 		invoke putImageScale,offset imgsuccess,0,0,1000,600
+		invoke setTextSize,20
+		invoke setTextColor,0032CD32h
+		invoke setTextBkColor,colorBACKGROUND
+		invoke paintText,830,250,offset titlefinalscore
+
+		invoke setTextSize,45
+		invoke setTextColor,00DC143Ch
+		invoke setTextBkColor,colorBACKGROUND
+		invoke paintText,830,290,offset strfinalscore
 		invoke endPaint
 		jmp finish
 		
