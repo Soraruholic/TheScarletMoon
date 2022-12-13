@@ -34,6 +34,9 @@ extern BulletNum:dword
 extern Boss:Item
 extern BulletSpeedX:dword
 extern bgmChange:dword
+extern existBulletNum:dword
+extern tmp_exist_bullet:dword
+extern hurtable:dword
 
 
 printf PROTO C :ptr DWORD, :VARARG
@@ -161,7 +164,7 @@ HitBoss proc C
 				mov Boss.exist,0
 				mov currentWin,3
 				mov Score,0
-				mov Life,30
+				mov Life,3
 				mov playerPosX,350
 				mov playerPosY,550
 				invoke Flush
@@ -194,6 +197,85 @@ HitBoss proc C
 	popad
 	ret
 HitBoss endp
+
+clearBullet proc C
+	push ebx
+	push eax
+	push edi
+	mov edi,0
+	mov eax, BulletNum; 将ebx设置为brickNum*32
+	mov ebx, 32;
+	mul ebx;
+	mov ebx, eax
+	.while edi<ebx
+		.if Bullets[edi].exist == 1
+			mov Bullets[edi].exist,0
+		.endif
+		add edi, 32
+	.endw
+	pop edi
+	pop eax
+	pop ebx
+	ret
+clearBullet endp
+
+HitPlayer proc C
+	pushad
+	.if hurtable == 0
+	mov eax,existBulletNum
+	mov tmp_exist_bullet,eax
+	mov eax,BulletNum
+	mov ebx,32
+	mul ebx
+	mov edi,eax
+LoopItem:
+	sub edi,32
+	.if Bullets[edi].exist == 1
+		sub tmp_exist_bullet,1
+		mov eax,playerPosX
+		.if eax < 10
+			mov eax, 0
+		.else
+			sub eax,10
+		.endif
+		mov ebx,playerPosX
+		add ebx,40
+		mov ecx,playerPosY
+		.if ecx < 10
+			mov ecx, 0
+		.else
+			sub ecx,10
+		.endif
+		mov esi,playerPosY
+		add esi,40
+		.if Bullets[edi].posX >= eax && Bullets[edi].posX <= ebx && Bullets[edi].posY >= ecx && Bullets[edi].posY <= esi
+			mov hurtable,4
+			.if Life > 0
+				sub Life,1
+			.else
+				mov Life,0
+			.endif 
+			.if Life == 0
+				mov currentWin,4
+				mov Score,0
+				mov Life,3
+				mov playerPosX,350
+				mov playerPosY,550
+				invoke Flush
+			.endif
+			invoke clearBullet
+			mov existBulletNum,0
+			jmp Finished
+		.endif
+	.endif
+	cmp tmp_exist_bullet,0
+	jne LoopItem
+	jmp Finished
+	.endif
+Finished:
+	popad
+	ret
+HitPlayer endp
 
 moveBall proc C
 	pushad
@@ -283,6 +365,7 @@ moveBullet proc C
 
 			.if (Bullets[edi].posX <= 0 || Bullets[edi].posX >= 700 || Bullets[edi].posY <= 0 || Bullets[edi].posY >= 600)
 				mov Bullets[edi].exist, 0
+				sub existBulletNum,1
 			.endif
 		.endif 
 		add edi, 32
@@ -402,6 +485,7 @@ loadDirectiveBullets proc C
 	.endif
 
 	add BulletNum, 4
+	add existBulletNum,4
 
 	pop edi
 
@@ -451,11 +535,11 @@ loadCutBullets proc C
 	mov Bullets[edi].vY, 15
 
 	add BulletNum, 4
+	add existBulletNum,4
 
 	pop edi
 	ret
 loadCutBullets endp
-
 
 bossAttack proc C 
 	.if (timeCount == 0 || timeCount == 50)
@@ -496,6 +580,17 @@ bgmChanger proc C
 	ret
 bgmChanger endp
 
+unhurtable proc C
+	.if hurtable > 0
+		sub hurtable,1
+		mov Player.typ,2
+		invoke Flush
+	.elseif hurtable == 0
+		mov Player.typ,0
+	.endif
+	ret
+unhurtable endp
+
 timeCounter proc C
 	add timeCount,1
 	.if timeCount >= 200
@@ -505,16 +600,19 @@ timeCounter proc C
 timeCounter endp
 
 timer proc C id:dword
+	invoke printf,offset coordd,BulletNum
 .if currentWin == 1
 	invoke timeCounter
+	invoke unhurtable
 	invoke moveBall
-	.if Ball.exist == 1
-		invoke HitBrick
-	.endif
 	.if Boss.exist == 1
+		invoke HitPlayer
 		invoke HitBoss
 		invoke bossAttack
 		invoke moveBullet
+	.endif
+	.if Ball.exist == 1
+		invoke HitBrick
 	.endif
 	invoke Flush
 .endif
@@ -524,8 +622,9 @@ timer endp
 InitGame proc C
 	pushad
 IniPlayer:
-	mov eax,0
-	mov Player.typ,eax
+	mov Player.typ,0
+	mov hurtable,0
+	mov Life,3
 
 	push 0
 	call crt_time
@@ -541,6 +640,9 @@ IniBall:
 	invoke initBall
 IniTime:
 	mov timeCount,0
+IniBulletNum:
+	mov BulletNum,0
+	mov existBulletNum,0
 
 	invoke registerTimerEvent,offset timer
 	invoke startTimer,0,50
