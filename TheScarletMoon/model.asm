@@ -30,20 +30,48 @@ extern Bullets:Item
 extern InitBrickCoordX:dword
 extern InitBrickCoordY:dword
 extern timeCount:dword
+extern BulletNum:dword
+extern Boss:Item
+extern BulletSpeedX:dword
+
 
 printf PROTO C :ptr DWORD, :VARARG
 calDistance PROTO C :dword, :dword, :dword, :dword
 
 .data
-coord sbyte "%d",0ah,0
-coordd sbyte "1",0ah,0
+coord sbyte "%d %d %d",0ah,0
+coordd sbyte "%d",0ah,0
 
 .code
+initBall proc C
+	mov Ball.exist,1
+	mov Ball.vX,30
+	mov Ball.vY,20
+	mov ballPosX,100
+	mov ballPosY,400
+	ret
+initBall endp
 
+initBoss proc C
+	mov Boss.exist, 1
+	mov BossLife,20
+	mov Boss.posX, 350
+	mov Boss.posY, 150
+	mov Boss.W, 100
+	mov Boss.H, 100
+	mov Ball.exist, 0
+	mov BulletNum, 0
+	ret
+initBoss endp
 
 HitBrick proc C
 	pushad
 	mov edi,0
+	.if (existBrickNum == 0 && Boss.exist == 0)
+		invoke initBall
+		invoke initBoss
+		invoke Flush
+	.endif
 LoopTraverseItem:
 	.if Bricks[edi].exist == 1
 		mov eax,Bricks[edi].posX
@@ -65,6 +93,7 @@ LoopTraverseItem:
 		.if ballPosX >= eax && ballPosX <= ebx && ballPosY >= ecx && ballPosY <= esi
 			sub existBrickNum,1
 			mov Bricks[edi].exist,0
+			add Score,100
 
 			mov eax,Ball.vX
 			sub Ball.posX,eax
@@ -106,21 +135,55 @@ Finish:
 	ret
 HitBrick endp
 
+HitBoss proc C
+	pushad
+	mov edi,0
+	.if Boss.exist == 1
+		mov eax,260
+		mov ebx,400
+		mov ecx,110
+		mov esi,250
+		.if ballPosX >= eax && ballPosX <= ebx && ballPosY >= ecx && ballPosY <= esi
+			sub BossLife,1
+			invoke printf,offset coordd,BossLife
+			add Score,20
+			.if BossLife <= 10
+				mov Boss.exist,0
+				mov currentWin,3
+				mov Score,0
+				mov Life,30
+				mov playerPosX,350
+				mov playerPosY,550
+				invoke Flush
+			.endif
 
-initBall proc C
-	push eax
-	mov eax,1
-	mov Ball.exist,eax
-	mov eax,30
-	mov Ball.vX,eax
-	mov eax,20
-	mov Ball.vY,eax
-	mov eax,100
-	mov ballPosX,eax
-	mov eax,400
-	mov ballPosY,eax
-	pop eax
-initBall endp
+			mov eax,Ball.vX
+			sub Ball.posX,eax
+			mov ebx,Ball.vY
+			sub Ball.posY,ebx
+
+			mov eax,260
+			mov ebx,400
+			.if ballPosX >= eax && ballPosX <=ebx
+				mov eax,0
+				mov ebx,Ball.vY
+				sub eax,ebx
+				mov Ball.vY,eax
+			.endif
+
+			mov eax,110
+			mov ebx,250
+			.if ballPosY >= eax && ballPosY <=ebx
+				mov eax,0
+				mov ebx,Ball.vX
+				sub eax,ebx
+				mov Ball.vX,eax
+			.endif
+		.endif
+	.endif
+	popad
+	ret
+HitBoss endp
 
 moveBall proc C
 	pushad
@@ -164,12 +227,12 @@ moveBall proc C
 moveBall endp
 
 initBricks proc C
-	mov brickNum, 35
-	mov existBrickNum, 35
 	push ebx					
 	push edi
 	push ecx
 	push esi
+	mov brickNum, 35
+	mov existBrickNum, 35
 	mov edi,0
 	mov ecx,0
 	mov eax, brickNum
@@ -187,40 +250,249 @@ initBricks proc C
 		add edi, 32
 		add ecx, 4
 	.endw
+	pop esi
+	pop ecx
 	pop edi
 	pop ebx
-	pop ecx
-	pop esi
 	ret
 initBricks endp
+
+moveBullet proc C
+	pushad
+	mov edi,0
+	mov eax, BulletNum
+	mov ebx, 32
+	mul ebx
+	mov ebx, eax
+	.while edi<ebx
+		.if Bullets[edi].exist == 1
+			mov eax, Bullets[edi].vX
+			add Bullets[edi].posX, eax
+			mov eax, Bullets[edi].vY
+			add Bullets[edi].posY, eax
+
+			.if (Bullets[edi].posX <= 0 || Bullets[edi].posX >= 700 || Bullets[edi].posY <= 0 || Bullets[edi].posY >= 600)
+				mov Bullets[edi].exist, 0
+			.endif
+		.endif 
+		add edi, 32
+	.endw
+	popad
+	ret
+moveBullet endp
+
+loadDirectiveBullets proc C
+	push edi
+	mov BulletSpeedX, 50
+
+	mov eax, BulletNum
+	mov edi, 32;
+	mul edi;
+	mov edi, eax
+
+	mov Bullets[edi].exist, 1
+	mov Bullets[edi].W, 10
+	mov Bullets[edi].H, 10
+	mov Bullets[edi].posX, 50
+	mov Bullets[edi].posY, 100
+	mov Bullets[edi].vY, 9
+	mov t1, edi
+	.if playerPosX > 50
+		mov eax, playerPosX
+		sub eax, 50
+		div BulletSpeedX
+		mov edi, t1
+		mov Bullets[edi].vX, eax
+	.else
+		mov eax, 50
+		sub eax, playerPosX
+		div BulletSpeedX
+		mov edi, eax
+		mov eax, 0
+		sub eax, edi
+		mov edi, t1
+		mov Bullets[edi].vX, eax
+	.endif
+
+	add edi, 32
+	mov Bullets[edi].exist, 1
+	mov Bullets[edi].W, 10
+	mov Bullets[edi].H, 10
+	mov Bullets[edi].posX, 250
+	mov Bullets[edi].posY, 100
+	mov Bullets[edi].vY, 9
+	mov t1, edi
+	.if playerPosX > 250
+		mov eax, playerPosX
+		sub eax, 250
+		div BulletSpeedX
+		mov edi, t1
+		mov Bullets[edi].vX, eax
+	.else
+		mov eax, 250
+		sub eax, playerPosX
+		div BulletSpeedX
+		mov edi, eax
+		mov eax, 0
+		sub eax, edi
+		mov edi, t1
+		mov Bullets[edi].vX, eax
+	.endif
+
+
+	add edi, 32
+	mov Bullets[edi].exist, 1
+	mov Bullets[edi].W, 10
+	mov Bullets[edi].H, 10
+	mov Bullets[edi].posX, 450
+	mov Bullets[edi].posY, 100
+	mov Bullets[edi].vY, 9
+	mov t1, edi
+	.if playerPosX > 450
+		mov eax, playerPosX
+		sub eax, 450
+		div BulletSpeedX
+		mov edi, t1		
+		mov Bullets[edi].vX, eax
+	.else
+		mov eax, 450
+		sub eax, playerPosX
+		div BulletSpeedX
+		mov edi, eax
+		mov eax, 0
+		sub eax, edi
+		mov edi, t1
+		mov Bullets[edi].vX, eax
+	.endif
+
+	add edi, 32
+	mov Bullets[edi].exist, 1
+	mov Bullets[edi].W, 10
+	mov Bullets[edi].H, 10
+	mov Bullets[edi].posX, 650
+	mov Bullets[edi].posY, 100
+	mov Bullets[edi].vY, 9
+	mov t1, edi
+	.if playerPosX > 650
+		mov eax, playerPosX
+		sub eax, 650
+		div BulletSpeedX
+		mov t1, eax
+		mov edi, t1
+		mov Bullets[edi].vX, eax
+	.else
+		mov eax, 650
+		sub eax, playerPosX
+		div BulletSpeedX
+		mov edi, eax
+		mov eax, 0
+		sub eax, edi
+		mov edi, t1
+		mov Bullets[edi].vX, eax
+	.endif
+
+	add BulletNum, 4
+
+	pop edi
+
+	ret
+loadDirectiveBullets endp
+
+loadCutBullets proc C
+	push edi
+	mov eax, BulletNum
+	mov edi, 32
+	mul edi
+	mov edi, eax
+
+	mov Bullets[edi].exist, 1
+	mov Bullets[edi].W, 10
+	mov Bullets[edi].H, 10
+	mov Bullets[edi].posX, 50
+	mov Bullets[edi].posY, 100
+	mov Bullets[edi].vX, 0
+	mov Bullets[edi].vY, 15
+
+	add edi, 32
+	mov Bullets[edi].exist, 1
+	mov Bullets[edi].W, 10
+	mov Bullets[edi].H, 10
+	mov Bullets[edi].posX, 250
+	mov Bullets[edi].posY, 100
+	mov Bullets[edi].vX, 0
+	mov Bullets[edi].vY, 15
+	
+	add edi, 32
+	mov Bullets[edi].exist, 1
+	mov Bullets[edi].W, 10
+	mov Bullets[edi].H, 10
+	mov Bullets[edi].posX, 450
+	mov Bullets[edi].posY, 100
+	mov Bullets[edi].vX, 0
+	mov Bullets[edi].vY, 15
+
+	add edi, 32
+	mov Bullets[edi].exist, 1
+	mov Bullets[edi].W, 10
+	mov Bullets[edi].H, 10
+	mov Bullets[edi].posX, 650
+	mov Bullets[edi].posY, 100
+	mov Bullets[edi].vX, 0
+	mov Bullets[edi].vY, 15
+
+	add BulletNum, 4
+
+	pop edi
+	ret
+loadCutBullets endp
+
+
+bossAttack proc C 
+	.if (timeCount == 0 || timeCount == 50)
+		invoke printf,offset coord, BulletNum
+		.if BulletNum < 1000
+			invoke loadDirectiveBullets
+		.endif
+	.elseif (timeCount >= 100 && timeCount <= 150)
+		.if BulletNum < 1000
+			invoke loadCutBullets 
+		.endif
+		;mov BulletNum, 0
+	.endif
+	.if BulletNum >= 1000
+		mov BulletNum, 0
+	.endif
+	ret
+bossAttack endp
 
 timeCounter proc C
 	add timeCount,1
 	.if timeCount >= 200
 		sub timeCount,200
 	.endif
-	invoke printf,offset coord,timeCount
 	ret
 timeCounter endp
 
 timer proc C id:dword
+.if currentWin == 1
+	invoke printf,offset coordd,currentWin
 	invoke timeCounter
 	invoke moveBall
-	invoke HitBrick
+	.if Ball.exist == 1
+		invoke HitBrick
+	.endif
+	.if Boss.exist == 1
+		invoke HitBoss
+		invoke bossAttack
+		invoke moveBullet
+	.endif
 	invoke Flush
+.endif
 	ret
 timer endp
 
 InitGame proc C
 	pushad
-
-IniGameSize:
-	
-IniScore:
-		
-IniLife:
-	
-	
 IniPlayer:
 	mov eax,0
 	mov Player.typ,eax
