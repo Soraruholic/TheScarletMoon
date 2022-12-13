@@ -29,12 +29,14 @@ extern existBrickNum:dword
 extern Bullets:Item
 extern InitBrickCoordX:dword
 extern InitBrickCoordY:dword
+extern timeCount:dword
 
 printf PROTO C :ptr DWORD, :VARARG
 calDistance PROTO C :dword, :dword, :dword, :dword
 
 .data
 coord sbyte "%d",0ah,0
+coordd sbyte "1",0ah,0
 
 .code
 
@@ -45,11 +47,19 @@ HitBrick proc C
 LoopTraverseItem:
 	.if Bricks[edi].exist == 1
 		mov eax,Bricks[edi].posX
-		sub eax,40
+		.if eax < 40
+			mov eax, 0
+		.else
+			sub eax,40
+		.endif
 		mov ebx,Bricks[edi].posX
 		add ebx,40
 		mov ecx,Bricks[edi].posY
-		sub ecx,40
+		.if ecx < 40
+			mov ecx, 0
+		.else
+			sub ecx,40
+		.endif
 		mov esi,Bricks[edi].posY
 		add esi,40
 		.if ballPosX >= eax && ballPosX <= ebx && ballPosY >= ecx && ballPosY <= esi
@@ -98,9 +108,10 @@ HitBrick endp
 
 
 initBall proc C
+	push eax
 	mov eax,1
 	mov Ball.exist,eax
-	mov eax,20
+	mov eax,30
 	mov Ball.vX,eax
 	mov eax,20
 	mov Ball.vY,eax
@@ -108,16 +119,18 @@ initBall proc C
 	mov ballPosX,eax
 	mov eax,400
 	mov ballPosY,eax
+	pop eax
 initBall endp
 
 moveBall proc C
-	add Ball.vY,1
+	pushad
+	add Ball.vY,2
 	mov eax,Ball.vX
 	add ballPosX,eax
 	mov eax,Ball.vY
 	add ballPosY,eax
 
-	.if ballPosX <= 0
+	.if (ballPosX <= 0 || ballPosX > 2000)
 		mov eax,0
 		mov ebx,Ball.vX
 		sub eax,ebx
@@ -132,7 +145,7 @@ moveBall proc C
 		mov ballPosX,760
 	.endif
 
-	.if ballPosY <= 0
+	.if (ballPosY <= 0 || ballPosY > 1000)
 		mov eax,0
 		mov ebx,Ball.vY
 		sub eax,ebx
@@ -146,6 +159,7 @@ moveBall proc C
 		mov Ball.vY,eax
 		mov ballPosY,560
 	.endif
+	popad
 	ret
 moveBall endp
 
@@ -158,9 +172,9 @@ initBricks proc C
 	push esi
 	mov edi,0
 	mov ecx,0
-	mov eax, brickNum; 将ebx设置为brickNum*32
-	mov ebx, 32;
-	mul ebx;
+	mov eax, brickNum
+	mov ebx, 32
+	mul ebx
 	mov ebx, eax
 	.while edi<ebx
 		mov esi, InitBrickCoordX[ecx]
@@ -180,7 +194,17 @@ initBricks proc C
 	ret
 initBricks endp
 
+timeCounter proc C
+	add timeCount,1
+	.if timeCount >= 200
+		sub timeCount,200
+	.endif
+	invoke printf,offset coord,timeCount
+	ret
+timeCounter endp
+
 timer proc C id:dword
+	invoke timeCounter
 	invoke moveBall
 	invoke HitBrick
 	invoke Flush
@@ -213,10 +237,11 @@ IniBricks:
 	invoke initBricks
 IniBall:
 	invoke initBall
-	
+IniTime:
+	mov timeCount,0
 
 	invoke registerTimerEvent,offset timer
-	invoke startTimer,0,100
+	invoke startTimer,0,50
 	popad
 	ret
 InitGame endp
