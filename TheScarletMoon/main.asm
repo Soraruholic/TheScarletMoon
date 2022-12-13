@@ -37,6 +37,7 @@ extern existBrickNum:dword
 extern Bullets:Item
 extern InitBrickCoordX:dword
 extern InitBrickCoordY:dword
+extern bgmChange:dword
 
 .code
 
@@ -49,6 +50,9 @@ main proc
 	mov Life,3
 	mov playerPosX,350
 	mov playerPosY,550
+
+	mov bgmChange,2
+	invoke bgmChanger
 
 	invoke Flush
 	
