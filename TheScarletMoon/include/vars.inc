@@ -16,3 +16,6 @@ extern t3:dword
 extern t4:dword
 
 extern bgmChange:dword
+extern existBulletNum:dword
+extern tmp_exist_bullet:dword
+extern hurtable:dword
