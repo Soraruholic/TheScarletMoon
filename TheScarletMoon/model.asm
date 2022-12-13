@@ -67,7 +67,7 @@ initBall endp
 
 initBoss proc C
 	mov Boss.exist, 1
-	mov BossLife,20
+	mov BossLife,20 
 	mov Boss.posX, 350
 	mov Boss.posY, 150
 	mov Boss.W, 100

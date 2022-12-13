@@ -33,6 +33,7 @@ extern hitBallAcc:dword
 extern bgmChange:dword
 
 printf PROTO C :ptr DWORD, :VARARG
+ExitProcess proto stdcall , :dword
 
 .data
 coord sbyte "%d | %d", 0ah, 0
@@ -75,6 +76,7 @@ iface_mouseEvent proc C x:dword,y:dword,button:dword,event:dword
 		.endif
 		invoke is_inside_the_rect,x,y,800,1000,400,500
 		.if eax == 1
+			call ExitProcess
 		.endif
 	.elseif currentWin == 1
 		invoke is_inside_the_rect,x,y,800,1000,500,600
