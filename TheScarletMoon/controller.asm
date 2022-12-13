@@ -28,15 +28,17 @@ extern existBrickNum:dword
 extern Bullets:Item
 extern InitBrickCoordX:dword
 extern InitBrickCoordY:dword
+extern hitRange:dword
+extern hitBallAcc:dword
 
 
 printf PROTO C :ptr DWORD, :VARARG
 
 .data
-
+coord sbyte "%d | %d", 0ah, 0
+coordd sbyte "1",0ah,0
 
 .code
-;判断点击的坐标或所求点坐标是否在规定矩形框内，是返回1，不是则返回0。
 is_inside_the_rect proc C x:dword,y:dword,left:dword,right:dword,up:dword,bottom:dword
 	mov eax,x
 	mov ebx,y
@@ -54,7 +56,6 @@ is_inside_the_rect proc C x:dword,y:dword,left:dword,right:dword,up:dword,bottom
 	ret
 is_inside_the_rect endp
 
-; 鼠标事件回调函数
 iface_mouseEvent proc C x:dword,y:dword,button:dword,event:dword
 	pushad
 	mov ecx,event
@@ -76,7 +77,59 @@ not_click:
 	ret
 iface_mouseEvent endp
 
-; 键盘事件回调函数
+ballHit proc C
+	push edx
+	push esi
+
+	mov hitBallAcc, 10
+
+	mov edx, 0
+	mov esi, Ball.vX
+	;invoke printf,offset coord, Ball.vX, Ball.vY
+	sub edx, esi
+	mov Ball.vX, edx
+
+	mov Ball.vY, -50
+	;invoke printf,offset coord, Ball.vX, Ball.vY
+
+	pop esi
+	pop edx
+	ret
+ballHit endp
+
+hitBallJudge proc C 
+	push eax
+	push ebx
+	push edi
+	
+	mov hitRange, 100
+	mov eax, playerPosX
+	sub eax, hitRange
+	mov ebx, eax
+	mov eax, playerPosX
+	add eax, 50
+	add eax, hitRange
+	mov edi, eax
+
+	.if ebx < 40
+		mov ebx, 40
+	.endif
+	sub ebx, 40
+
+	;invoke printf,offset coord, ballPosX, ballPosY
+	;invoke printf,offset coord, ecx, playerPosX
+	;invoke printf,offset coord, edi, ebx
+	;invoke printf,offset coord, esi, edx
+	.if (ballPosX <= edi && ballPosX >= ebx && ballPosY <= 560 && ballPosY >= 420)
+		invoke ballHit
+	.endif
+
+	pop edi
+	pop ebx
+	pop eax
+	ret
+hitBallJudge endp
+
 iface_keyboardEvent proc C key:dword, event:dword
 	pushad
 	mov ecx,event
@@ -88,13 +141,14 @@ iface_keyboardEvent proc C key:dword, event:dword
 			mov eax,1
 			mov Player.typ,eax
 			invoke Flush
+			invoke hitBallJudge
 			mov eax,0
 			mov Player.typ,eax
 		.endif
 		.if key == VK_A
 			.if playerPosX > 10
 				mov eax,playerPosX
-				sub eax,10
+				sub eax,25
 				mov playerPosX,eax
 			.elseif playerPosX <= 10
 				mov eax,0
@@ -104,7 +158,7 @@ iface_keyboardEvent proc C key:dword, event:dword
 		.if key == VK_D
 			.if playerPosX < 740
 				mov eax,playerPosX
-				add eax,10
+				add eax,25
 				mov playerPosX,eax
 			.elseif playerPosX >= 740
 				mov eax,750
