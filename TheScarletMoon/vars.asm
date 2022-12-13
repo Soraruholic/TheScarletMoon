@@ -54,7 +54,7 @@ brickNum DWORD 0
 public brickNum
 existBrickNum DWORD 5
 public existBrickNum
-Bullets Item 800 DUP({})
+Bullets Item 1000 DUP({})
 public Bullets
 BulletNum DWORD 0
 public BulletNum

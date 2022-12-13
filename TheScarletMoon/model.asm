@@ -226,7 +226,7 @@ moveBullet proc C
 			mov eax, Bullets[edi].vY
 			add Bullets[edi].posY, eax
 
-			.if (Bullets[edi].posX <= 0 || Bullets[edi].posX >= 700 || Bullets[edi].posY <= 0 || Bullets[edi].posY >= 600)
+			.if (Bullets[edi].posX <= 0 || Bullets[edi].posX >= 750 || Bullets[edi].posY <= 0 || Bullets[edi].posY >= 600)
 				mov Bullets[edi].exist, 0
 			.endif
 		.endif 
@@ -332,6 +332,7 @@ loadDirectiveBullets proc C
 		mov eax, playerPosX
 		sub eax, 650
 		div BulletSpeedX
+		mov t1, eax
 		mov edi, t1
 		mov Bullets[edi].vX, eax
 	.else
@@ -352,14 +353,69 @@ loadDirectiveBullets proc C
 	ret
 loadDirectiveBullets endp
 
+loadCutBullets proc C
+	push edi
+	mov eax, BulletNum
+	mov edi, 32;
+	mul edi;
+	mov edi, eax
+
+	mov Bullets[edi].exist, 1
+	mov Bullets[edi].W, 10
+	mov Bullets[edi].H, 10
+	mov Bullets[edi].posX, 50
+	mov Bullets[edi].posY, 100
+	mov Bullets[edi].vX, 0
+	mov Bullets[edi].vY, 15
+
+	add edi, 32
+	mov Bullets[edi].exist, 1
+	mov Bullets[edi].W, 10
+	mov Bullets[edi].H, 10
+	mov Bullets[edi].posX, 250
+	mov Bullets[edi].posY, 100
+	mov Bullets[edi].vX, 0
+	mov Bullets[edi].vY, 15
+	
+	add edi, 32
+	mov Bullets[edi].exist, 1
+	mov Bullets[edi].W, 10
+	mov Bullets[edi].H, 10
+	mov Bullets[edi].posX, 450
+	mov Bullets[edi].posY, 100
+	mov Bullets[edi].vX, 0
+	mov Bullets[edi].vY, 15
+
+	add edi, 32
+	mov Bullets[edi].exist, 1
+	mov Bullets[edi].W, 10
+	mov Bullets[edi].H, 10
+	mov Bullets[edi].posX, 650
+	mov Bullets[edi].posY, 100
+	mov Bullets[edi].vX, 0
+	mov Bullets[edi].vY, 15
+
+	add BulletNum, 4
+
+	pop edi
+	ret
+loadCutBullets endp
+
+
 bossAttack proc C 
-	.if (timeCount == 0)
+	.if (timeCount == 0 || timeCount == 50)
 		invoke printf,offset coord, BulletNum
-		.if BulletNum < 500
+		.if BulletNum < 1000
 			invoke loadDirectiveBullets
 			;invoke printf,offset coord, BulletNum
 		.endif
-	.elseif timeCount == 180
+	.elseif (timeCount >= 100 && timeCount <= 150)
+		.if BulletNum < 1000
+			invoke loadCutBullets 
+		.endif
+		;mov BulletNum, 0
+	.endif
+	.if BulletNum >= 1000
 		mov BulletNum, 0
 	.endif
 	ret
