@@ -65,6 +65,9 @@ imgplayer1 ACL_Image <>
 srcplayer2 byte "..\resource\icon\player2.jpg",0
 imgplayer2 ACL_Image <>
 
+srcplayer3 byte "..\resource\icon\player3.jpg",0
+imgplayer3 ACL_Image <>
+
 srcball byte "..\resource\icon\ball.jpg",0
 imgball ACL_Image <>
 
@@ -189,6 +192,7 @@ Flush proc C
 		invoke loadImage,offset srcback,offset imgback
 		invoke loadImage,offset srcplayer1,offset imgplayer1
 		invoke loadImage,offset srcplayer2,offset imgplayer2
+		invoke loadImage,offset srcplayer3,offset imgplayer3
 		invoke loadImage,offset srcball,offset imgball
 		invoke loadImage,offset srcbrick, offset imgbrick
 		invoke loadImage,offset srcboss, offset imgboss
@@ -202,6 +206,8 @@ Flush proc C
 			invoke putImageScale,offset imgplayer1,playerPosX,playerPosY,50,50
 		.elseif Player.typ == 1
 			invoke putImageScale,offset imgplayer2,playerPosX,playerPosY,50,50
+		.elseif Player.typ == 2
+			invoke putImageScale,offset imgplayer3,playerPosX,playerPosY,50,50
 		.endif
 
 		.if existBrickNum > 0
