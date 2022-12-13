@@ -31,7 +31,6 @@ extern InitBrickCoordY:dword
 extern hitRange:dword
 extern hitBallAcc:dword
 
-
 printf PROTO C :ptr DWORD, :VARARG
 
 .data
@@ -65,11 +64,36 @@ iface_mouseEvent proc C x:dword,y:dword,button:dword,event:dword
 	.if currentWin == 0
 		invoke is_inside_the_rect,x,y,800,1000,100,200
 		.if eax == 1
-			mov eax,1
-			mov currentWin,eax
+			mov currentWin,1
 			invoke InitGame
 		.endif
+		invoke is_inside_the_rect,x,y,800,1000,250,350
+		.if eax == 1
+			mov currentWin,2
+			invoke Flush
+		.endif
 	.elseif currentWin == 1
+		invoke is_inside_the_rect,x,y,800,1000,500,600
+		.if eax == 1
+			mov currentWin,0
+			mov Score,0
+			mov Life,30
+			mov playerPosX,350
+			mov playerPosY,550
+			invoke Flush
+		.endif
+	.elseif currentWin == 2
+		invoke is_inside_the_rect,x,y,800,1000,500,600
+		.if eax == 1
+			mov currentWin,0
+			invoke Flush
+		.endif
+	.elseif currentWin == 3
+		invoke is_inside_the_rect,x,y,800,1000,500,600
+		.if eax == 1
+			mov currentWin,0
+			invoke Flush
+		.endif
 	.endif
 
 not_click:
@@ -116,10 +140,6 @@ hitBallJudge proc C
 	.endif
 	sub ebx, 40
 
-	;invoke printf,offset coord, ballPosX, ballPosY
-	;invoke printf,offset coord, ecx, playerPosX
-	;invoke printf,offset coord, edi, ebx
-	;invoke printf,offset coord, esi, edx
 	.if (ballPosX <= edi && ballPosX >= ebx && ballPosY <= 560 && ballPosY >= 420)
 		invoke ballHit
 	.endif
