@@ -84,4 +84,13 @@ public t4
 
 bgmChange DWORD 0
 public bgmChange
+
+existBulletNum DWORD 0
+public existBulletNum
+
+hurtable DWORD 0
+public hurtable
+
+tmp_exist_bullet DWORD 0
+public tmp_exist_bullet
 end
